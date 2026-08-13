@@ -11,7 +11,7 @@ import (
 
 var (
 	//Conexão com o banco Mysql
-	StringBankConection = ""
+	StringDBConnection = ""
 
 	//Porta onde a API está rodando
 	Port = 0
@@ -30,7 +30,7 @@ func Load() {
 		Port = 9000
 	}
 
-	StringBankConection = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local",
+	StringDBConnection = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
