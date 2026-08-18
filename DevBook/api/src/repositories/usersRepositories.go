@@ -44,7 +44,7 @@ func (repository UsersRepo) Search(nameOrNick string) ([]models.UsersModels, err
 	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick) // %nameOrNick%
 
 	lines, erro := repository.db.Query(
-		"select id, name, nick, email, createdat from users where name LIKE ? or nick Like ?",
+		"select id, name, nick, email, createdAt from users where name LIKE ? or nick Like ?",
 		nameOrNick, nameOrNick,
 	)
 	if erro != nil {
@@ -71,4 +71,32 @@ func (repository UsersRepo) Search(nameOrNick string) ([]models.UsersModels, err
 	}
 
 	return users, nil
+}
+
+//Busca usuário por ID no banco de dados
+func (repository UsersRepo) FindByID(ID uint64) (models.UsersModels, error) {
+	lines, erro := repository.db.Query(
+		"select id, name, nick, email, createdAt from users where id = ?",
+		ID,
+	)
+	if erro != nil {
+		return models.UsersModels{}, erro
+	}
+	defer lines.Close()
+
+	var user models.UsersModels
+
+	if lines.Next() {
+		if erro = lines.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedAt,
+		); erro != nil {
+			return models.UsersModels{}, erro
+		}
+	}
+
+	return user, nil
 }
