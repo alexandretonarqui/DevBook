@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 )
 
 //Criar usuario
@@ -48,7 +49,23 @@ func CreateUser(w http.ResponseWriter, r *http.Request)  {
 
 //Buscar todos os usuários
 func FindAll(w http.ResponseWriter, r *http.Request)  {
-	w.Write([]byte("Buscando todos os Usuários."))
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+
+	db, erro := db.Connection()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUsersRepository(db)
+	users, erro := repository.Search(nameOrNick)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, users)
 }
 
 //Buscar usuário específico
