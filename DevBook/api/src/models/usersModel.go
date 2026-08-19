@@ -16,8 +16,8 @@ type UsersModels struct {
 	CreatedAt time.Time `json:"createdat,omitempty"`
 }
 
-func (user *UsersModels) Preparer() error {
-	if erro := user.validation(); erro != nil {
+func (user *UsersModels) Preparer(step string) error {
+	if erro := user.validation(step); erro != nil {
 		return erro
 	}
 
@@ -26,7 +26,7 @@ func (user *UsersModels) Preparer() error {
 }
 
 //Chama os métodos pra formatar e validar os usuários recebidos
-func (user *UsersModels) validation() error {
+func (user *UsersModels) validation(step string) error {
 	if user.Name == "" {
 		return errors.New("Campo Nome preenchimento obrigatório")
 	}
@@ -39,7 +39,7 @@ func (user *UsersModels) validation() error {
 		return errors.New("Campo Email preenchimento obrigatório")
 	}
 
-	if user.Password == "" {
+	if step == "cadastro" && user.Password == "" {
 		return errors.New("Campo Password preenchimento obrigatório")
 	}
 

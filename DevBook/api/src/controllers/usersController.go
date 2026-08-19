@@ -28,7 +28,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request)  {
 		return
 	}
 
-	if erro = user.Preparer(); erro != nil {
+	if erro = user.Preparer("cadastro"); erro != nil {
 		responses.Erro(w, http.StatusBadRequest, erro)
 		return
 	}
@@ -100,7 +100,44 @@ func FindByID(w http.ResponseWriter, r *http.Request)  {
 
 //Atualizar usuário
 func UpdateUser(w http.ResponseWriter, r *http.Request)  {
-	w.Write([]byte("Atualizando Usuário."))
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userID"], 10, 64)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	requestBody, erro := io.ReadAll(r.Body)
+	if erro != nil{
+		responses.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	var user models.UsersModels
+	if erro = json.Unmarshal(requestBody, &user); erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	if erro = user.Preparer("edicao"); erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := db.Connection()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUsersRepository(db)
+	if erro = repository.UpdateUser(userID, user); erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
 
 //Deletar usuário
