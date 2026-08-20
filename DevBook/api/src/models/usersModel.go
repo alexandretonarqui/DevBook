@@ -48,7 +48,7 @@ func (user *UsersModels) validation(step string) error {
 		return errors.New("Email inserido inválido")
 	}
 
-	if step == "cadastro" && user.Password == "" {
+	if step == "submit" && user.Password == "" {
 		return errors.New("Campo Password preenchimento obrigatório")
 	}
 
@@ -60,7 +60,7 @@ func (user *UsersModels) format(step string) error{
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
 
-	if step == "cadastro" {
+	if step == "submit" {
 		passwordHash, erro := security.Hash(user.Password)
 		if erro != nil {
 			return erro
