@@ -117,3 +117,18 @@ func (repository UsersRepo) UpdateUser(ID uint64, user models.UsersModels) error
 
 	return nil
 }
+
+//Exclui os dados de um usuário no banco de dados
+func (repository UsersRepo) Delete(ID uint64) error {
+	statement, erro := repository.db.Prepare("delete from users where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	if _, erro = statement.Exec(ID); erro != nil {
+		return erro
+	}
+
+	return nil
+}
