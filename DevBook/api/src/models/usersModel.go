@@ -1,6 +1,7 @@
 package models
 
 import (
+	"api/src/security"
 	"errors"
 	"strings"
 	"time"
@@ -23,7 +24,10 @@ func (user *UsersModels) Preparer(step string) error {
 		return erro
 	}
 
-	user.format()
+	if erro := user.format(step); erro != nil {
+		return erro
+	}
+
 	return nil
 }
 
@@ -51,8 +55,18 @@ func (user *UsersModels) validation(step string) error {
 	return nil
 }
 
-func (user *UsersModels) format() {
+func (user *UsersModels) format(step string) error{
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
+
+	if step == "cadastro" {
+		passwordHash, erro := security.Hash(user.Password)
+		if erro != nil {
+			return erro
+		}
+		user.Password = string(passwordHash)
+	}
+
+	return nil
 }
