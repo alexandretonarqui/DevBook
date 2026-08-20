@@ -1,0 +1,48 @@
+package controllers
+
+import (
+	"api/src/db"
+	"api/src/models"
+	"api/src/repositories"
+	"api/src/responses"
+	"api/src/security"
+	"encoding/json"
+	"io"
+	"net/http"
+)
+
+// Autentica o usuário na API
+func Login(w http.ResponseWriter, r *http.Request) {
+	requestBody, erro := io.ReadAll(r.Body)
+	if erro != nil {
+		responses.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	var user models.UsersModels
+	if erro = json.Unmarshal(requestBody, &user); erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := db.Connection()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUsersRepository(db)
+	userDb, erro := repository.FindByEmail(user.Email)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	
+	if erro = security.PassVerifier(userDb.Password, user.Password); erro != nil {
+		responses.Erro(w, http.StatusUnauthorized, erro)
+		return
+	}
+
+	w.Write([]byte("Login sucessful"))
+}
