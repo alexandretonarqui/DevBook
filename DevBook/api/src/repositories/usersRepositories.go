@@ -135,7 +135,9 @@ func (repository UsersRepo) Delete(ID uint64) error {
 
 //Busca um usuário por Email, retornando seu ID e Senha com hash
 func (repository UsersRepo) FindByEmail(email string) (models.UsersModels, error) {
-	line, erro := repository.db.Query("select id, password from users where email = ?", email)
+	line, erro := repository.db.Query(
+		"select id, password from users where email = ?", email,
+	)
 	if erro != nil {
 		return models.UsersModels{}, erro
 	}
@@ -150,4 +152,21 @@ func (repository UsersRepo) FindByEmail(email string) (models.UsersModels, error
 	}
 
 	return user, nil
+}
+
+//Permite que um usuário siga outro usuário
+func (repository UsersRepo) Follow(userID, followID uint64) error {
+	statment, erro := repository.db.Prepare(
+		"insert ignore into followers (user_id, follower_id) values (?, ?)",
+	)
+	if erro != nil {
+		return erro
+	}
+	defer statment.Close()
+
+	if _, erro := statment.Exec(userID, followID); erro != nil {
+		return erro
+	}
+
+	return nil
 }
