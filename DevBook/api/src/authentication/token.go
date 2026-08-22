@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -34,6 +35,26 @@ func ValidateToken(r *http.Request) error {
 	}
 
 	return errors.New("Token inválido")
+}
+
+//Retorna o usuário que está salvo no token
+func ExtractUserID(r *http.Request) (uint64, error) {
+	tokenString := extractToken(r)
+	token, erro := jwt.Parse(tokenString, returnVerificationKey)
+	if erro != nil {
+		return 0, erro
+	}
+
+	if permissions, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userID, erro := strconv.ParseUint(fmt.Sprintf("%.0f", permissions["userID"]), 10, 64)
+		if erro != nil {
+			return 0, erro
+		}
+
+		return userID, nil
+	}
+
+	return 0, errors.New("Token inválido")
 }
 
 //Extrai o token do BEAR
