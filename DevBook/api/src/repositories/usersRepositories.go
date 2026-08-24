@@ -179,10 +179,43 @@ func (repository UsersRepo) UnfollowUser(userID, followID uint64) error {
 	if erro != nil {
 		return erro
 	}
+	defer statement.Close()
 
 	if _, erro = statement.Exec(userID, followID); erro != nil {
 		return erro
 	}
 
 	return nil
+}
+
+//Traz todos os seguidores de um usuário
+func (repository UsersRepo) SearchFollowers(userID uint64) ([]models.UsersModels, error) {
+	lines, erro := repository.db.Query(`
+		select u.id, u.name, u.nick, u.email, u.createdat
+		from users u inner join followers s on u.id = s.follower_id where s.user_id = ?`,
+		userID,
+	)
+	if erro != nil {
+		return nil, erro
+	}
+	defer lines.Close()
+
+	var users []models.UsersModels
+	for lines.Next() {
+		var user models.UsersModels
+
+		if erro = lines.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedAt,
+		); erro != nil {
+			return nil, erro
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }
