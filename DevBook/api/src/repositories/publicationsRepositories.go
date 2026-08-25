@@ -188,3 +188,24 @@ func (repository Publications) Like(publicationID uint64) error {
 
 	return nil
 }
+
+//Remove uma curtida na publicação
+func (repository Publications) UnLike(publicationID uint64) error {
+	statment, erro := repository.db.Prepare(`
+		update publications set likes =
+		CASE 
+			WHEN likes > 0 THEN likes - 1
+			ELSE 0 
+		END
+		Where id = ?`,
+	)
+	if erro != nil {
+		return erro
+	}
+
+	if _, erro = statment.Exec(publicationID); erro != nil {
+		return erro
+	}
+
+	return nil
+}
