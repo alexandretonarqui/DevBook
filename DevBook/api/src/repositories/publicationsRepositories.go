@@ -109,14 +109,29 @@ func (repository Publications) FindAllPublications(userID uint64) ([]models.Publ
 }
 
 //Altera os dados de uma publicação no banco de dados
-func (repository Publications) UpdatePublication(publicationId uint64, publication models.Publication) error {
+func (repository Publications) UpdatePublication(publicationID uint64, publication models.Publication) error {
 	statment, erro := repository.db.Prepare("update publications set title = ?, content = ? where id = ?")
 	if erro != nil {
 		return erro
 	}
 	defer statment.Close()
 
-	if _, erro = statment.Exec(publication.Title, publication.Content, publicationId); erro != nil {
+	if _, erro = statment.Exec(publication.Title, publication.Content, publicationID); erro != nil {
+		return erro
+	}
+
+	return nil
+}
+
+//Exclui uma publicação do banco de dados
+func (repository Publications) DeletePublication(publicationID uint64) error {
+	statment, erro := repository.db.Prepare("delete from publications where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statment.Close()
+
+	if _, erro = statment.Exec(publicationID); erro != nil {
 		return erro
 	}
 
