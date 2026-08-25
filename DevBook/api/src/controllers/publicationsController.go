@@ -60,7 +60,27 @@ func CreatePublication(w http.ResponseWriter, r *http.Request) {
 
 //Traz as publicações que apareceriam no feed
 func FindPublications(w http.ResponseWriter, r *http.Request) {
+	userID, erro := authentication.ExtractUserID(r)
+	if erro != nil {
+		responses.Erro(w, http.StatusUnauthorized, erro)
+		return
+	}
 
+	db, erro := db.Connection()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationsRepository(db)
+	publications, erro :=repository.FindAllPublications(userID)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, publications)
 }
 
 //Traz uma única publicação
