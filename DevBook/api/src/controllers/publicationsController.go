@@ -236,3 +236,29 @@ func GetPublicationsByUser(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusOK, publications)
 }
+
+//Adiciona uma curtida na publicação
+func Like(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	publicationID, erro := strconv.ParseUint(parameters["publicationID"], 10, 64)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := db.Connection()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationsRepository(db)
+	if erro = repository.Like(publicationID); erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+	
+}

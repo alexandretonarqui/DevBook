@@ -173,3 +173,18 @@ func (repository Publications) FindUser(userID uint64) ([]models.Publication, er
 
 	return publications, nil
 }
+
+//Adiciona uma curtida na publicação
+func (repository Publications) Like(publicationID uint64) error {
+	statement, erro := repository.db.Prepare("update publications set likes = likes + 1 where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	if _, erro = statement.Exec(publicationID); erro != nil {
+		return erro
+	}
+
+	return nil
+}
