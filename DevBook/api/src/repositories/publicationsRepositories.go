@@ -137,3 +137,39 @@ func (repository Publications) DeletePublication(publicationID uint64) error {
 
 	return nil
 }
+
+//Traz todas as publicações de um usuário específico
+func (repository Publications) FindUser(userID uint64) ([]models.Publication, error) {
+	lines, erro := repository.db.Query(`
+		select p.*, u.nick from publications p
+		join users u on u.id = p.author_id
+		where p.author_id = ?`,
+		userID,
+	)
+	if erro != nil {
+		return nil, erro
+	}
+	defer lines.Close()
+
+	var publications []models.Publication
+
+	for lines.Next() {
+		var publication models.Publication
+
+		if erro = lines.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Content,
+			&publication.AuthorID,
+			&publication.Likes,
+			&publication.CreatedAt,
+			&publication.AuthorNick,
+		); erro != nil {
+			return nil, erro
+		}
+
+		publications = append(publications, publication)
+	}
+
+	return publications, nil
+}

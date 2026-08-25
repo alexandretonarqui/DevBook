@@ -210,3 +210,29 @@ func DeletePublication(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusNoContent, nil)
 }
+
+//Traz todas as publicações de um usuário específico
+func GetPublicationsByUser(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userID"], 10, 64)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := db.Connection()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationsRepository(db)
+	publications, erro := repository.FindUser(userID)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, publications)
+}
