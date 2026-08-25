@@ -7,6 +7,7 @@ import (
 	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -111,7 +112,61 @@ func FindPublication(w http.ResponseWriter, r *http.Request) {
 
 //Altera os dados de uma publicção
 func UpdatePublication(w http.ResponseWriter, r *http.Request) {
+	userID, erro := authentication.ExtractUserID(r)
+	if erro != nil {
+		responses.Erro(w, http.StatusUnauthorized, erro)
+		return
+	}
 
+	parameters := mux.Vars(r)
+	publicationID, erro := strconv.ParseUint(parameters["publicationID"], 10, 64)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := db.Connection()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationsRepository(db)
+	publicationSavedDb, erro := repository.FindByID(publicationID)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	if publicationSavedDb.AuthorID != userID {
+		responses.Erro(w, http.StatusForbidden, errors.New("Não é possível atualizar uma publicação que não é sua"))
+		return
+	}
+
+	requestBody, erro := io.ReadAll(r.Body)
+	if erro != nil {
+		responses.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	var publication models.Publication
+	if erro = json.Unmarshal(requestBody, &publication); erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	if erro = publication.Prepare(); erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	if erro = repository.UpdatePublication(publicationID, publication); erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
 
 //Deleta uma publicação
