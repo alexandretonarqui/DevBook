@@ -12,5 +12,5 @@ func LoadLoginPage(w http.ResponseWriter, r *http.Request) {
 
 //LoadUserSubmitPage vai carregar a página de cadastro de usuário
 func LoadUserSubmitPage(w http.ResponseWriter, r *http.Request) {
-	utils.ExecTemplate(w, "submit.html", nil)
+	utils.ExecTemplate(w, "registration.html", nil)
 }
