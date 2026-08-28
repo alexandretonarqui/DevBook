@@ -18,5 +18,13 @@ function createUser(evento) {
            nick: $('#nick').val(), 
            password: $('#password').val()
         }
-    })
+    }).done(function() {
+        alert("User succesfully registered!");
+    }).fail(function(erro) {
+        console.log("Entrou no FAIL");
+        console.log(erro);
+        console.log("Status:", erro.status);
+        console.log("Resposta:", erro.responseJSON);
+        alert("Error registering user!");
+    });
 }
