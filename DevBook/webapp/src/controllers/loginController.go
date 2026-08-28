@@ -3,8 +3,8 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"webapp/src/models"
 	"webapp/src/responses"
 )
 
@@ -27,6 +27,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
 		return
 	}
+	defer response.Body.Close()
 
-	fmt.Println(response.StatusCode, response.Body)
+	if response.StatusCode >= 400 {
+		responses.TreatStatusCodeError(w, response)
+		return
+	}
+	
+	var dataAuth models.DataAuth
+	if erro = json.NewDecoder(response.Body).Decode(&dataAuth); erro != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	
 }
