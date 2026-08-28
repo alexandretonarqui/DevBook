@@ -7,15 +7,21 @@ import (
 
 var loginRoutes = []Route {
 	{
-		URI: "/",
-		Method: http.MethodGet,
-		Function: controllers.LoadLoginPage,
+		URI: 		 "/",
+		Method: 	 http.MethodGet,
+		Function: 	 controllers.LoadLoginPage,
 		RequestAuth: false,
 	},
 	{
-		URI: "/login",
-		Method: http.MethodGet,
-		Function: controllers.LoadLoginPage,
+		URI: 		 "/login",
+		Method: 	 http.MethodGet,
+		Function: 	 controllers.LoadLoginPage,
+		RequestAuth: false,
+	},
+	{
+		URI: 		 "/login",
+		Method: 	 http.MethodPost,
+		Function: 	 controllers.Login,
 		RequestAuth: false,
 	},
 }
