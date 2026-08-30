@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"webapp/src/config"
+	"webapp/src/requests"
 	"webapp/src/utils"
 )
 
@@ -17,5 +20,9 @@ func LoadUserSubmitPage(w http.ResponseWriter, r *http.Request) {
 
 //LoadHomePage carrega a página principal com as publicações
 func LoadHomePage(w http.ResponseWriter, r *http.Request) {
+	url := fmt.Sprintf("%s/publications", config.APIURL)
+	response, erro := requests.MakeAuthRequest(r, http.MethodGet, url, nil)
+	fmt.Println(response.StatusCode, erro)
+
 	utils.ExecTemplate(w, "home.html", nil)
 }
