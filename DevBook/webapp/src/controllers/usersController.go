@@ -3,7 +3,9 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"webapp/src/config"
 	"webapp/src/responses"
 )
 
@@ -23,7 +25,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, erro := http.Post("http://localhost:5000/users", "application/json", bytes.NewBuffer(user))
+	url := fmt.Sprintf("%s/users", config.APIURL)
+	response, erro := http.Post(url, "application/json", bytes.NewBuffer(user))
 	if erro != nil {
 		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
 		return
