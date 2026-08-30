@@ -35,3 +35,18 @@ func Save(w http.ResponseWriter, ID, token string) error {
 
 	return nil
 }
+
+//Read retorna os valores armazenados no cookie
+func Read(r *http.Request) (map[string]string, error) {
+	cookie, erro := r.Cookie("datas")
+	if erro != nil {
+		return nil, erro
+	}
+
+	values := make(map[string]string)
+	if erro = s.Decode("datas", cookie.Value, &values); erro != nil {
+		return nil, erro
+	}
+
+	return values, nil
+}
