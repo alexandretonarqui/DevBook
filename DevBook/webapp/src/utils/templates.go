@@ -2,7 +2,7 @@ package utils
 
 import (
 	"net/http"
-	"text/template"
+	"html/template"
 )
 
 var templates *template.Template
@@ -10,6 +10,7 @@ var templates *template.Template
 //LoadTemplates insere os templates na váriavel templates
 func LoadTemplates() {
 	templates = template.Must(template.ParseGlob("views/*.html"))
+	templates = template.Must(templates.ParseGlob("views/templates/*.html"))
 }
 
 //ExecTemplate carrega uma página html na tela
