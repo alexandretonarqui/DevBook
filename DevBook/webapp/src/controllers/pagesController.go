@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"webapp/src/config"
+	"webapp/src/models"
 	"webapp/src/requests"
+	"webapp/src/responses"
 	"webapp/src/utils"
 )
 
@@ -22,7 +25,22 @@ func LoadUserSubmitPage(w http.ResponseWriter, r *http.Request) {
 func LoadHomePage(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("%s/publications", config.APIURL)
 	response, erro := requests.MakeAuthRequest(r, http.MethodGet, url, nil)
-	fmt.Println(response.StatusCode, erro)
+	if erro != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
 
-	utils.ExecTemplate(w, "home.html", nil)
+	if response.StatusCode >= 400 {
+		responses.TreatStatusCodeError(w, response)
+		return
+	}
+	
+	var publications []models.Publication
+	if erro = json.NewDecoder(response.Body).Decode(&publications); erro != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	utils.ExecTemplate(w, "home.html", publications)
 }
