@@ -1,5 +1,5 @@
 {{ define "likes" }}
-    <i class="fa-solid fa-heart" style="color: rgb(243, 72, 150);"></i>
+    <i class="fa-solid fa-heart like-publication" style="color: rgb(243, 72, 150);"></i>
     <span> {{ .Likes }} </span>
 {{ end }}
 
@@ -24,7 +24,7 @@
 
 
 {{ define "publication-allowed" }}
-    <div class="jumbotron" id-publication-date="{{ .ID }}">
+    <div class="jumbotron" data-publication-id="{{ .ID }}">
         {{ template "header-publication" . }}
         <p>
             {{ template "likes" . }}
@@ -35,7 +35,7 @@
 {{ end }}
 
 {{ define "publication-not-allowed" }}
-    <div class="jumbotron" id-publication-date="{{ .ID }}">
+    <div class="jumbotron" data-publication-id="{{ .ID }}">
         {{ template "header-publication" . }}
         <p>
             {{ template "likes" . }}
