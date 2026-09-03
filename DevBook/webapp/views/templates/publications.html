@@ -1,0 +1,39 @@
+{{ define "likes" }}
+    <span> {{ .Likes }} likes </span>
+{{ end }}
+
+{{ define "edit" }}
+    <a href="/edit">Edit Publication</a>
+{{ end }}
+
+{{ define "delete" }}
+    <a href="/delete">Delete Publication</a>
+{{ end }}
+
+{{ define "header-publication" }}
+    <h1 class="display-4"> {{ .Title }} </h1>
+    <p class="lead"> {{ .Content }} </p>
+    <a href="#"> {{ .AuthorNick }} - {{ .CreatedAt.Format "02/01/2006 3:4" }} </a>
+    <hr class="my-4">
+{{ end }}
+
+
+{{ define "publication-allowed" }}
+    <div class="jumbotron" id-publication-date="{{ .ID }}">
+        {{ template "header-publication" . }}
+        <p>
+            {{ template "likes" . }}
+            {{ template "edit" }}
+            {{ template "delete" }}
+        </p>
+    </div>
+{{ end }}
+
+{{ define "publication-not-allowed" }}
+    <div class="jumbotron" id-publication-date="{{ .ID }}">
+        {{ template "header-publication" . }}
+        <p>
+            {{ template "likes" . }}
+        </p>
+    </div>
+{{ end }}
