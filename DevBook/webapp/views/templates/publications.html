@@ -1,13 +1,18 @@
 {{ define "likes" }}
-    <span> {{ .Likes }} likes </span>
+    <i class="fa-solid fa-heart" style="color: rgb(243, 72, 150);"></i>
+    <span> {{ .Likes }} </span>
 {{ end }}
 
 {{ define "edit" }}
-    <a href="/edit">Edit Publication</a>
+    <a href="/edit" style="text-decoration: none;">
+        <i class="fa-solid fa-pen-to-square" style="color: rgb(99, 230, 190);"></i>
+    </a>
 {{ end }}
 
 {{ define "delete" }}
-    <a href="/delete">Delete Publication</a>
+    <a href="/delete" style="text-decoration: none;">
+        <i class="fa-solid fa-trash text-danger"></i>
+    </a>
 {{ end }}
 
 {{ define "header-publication" }}
