@@ -1,5 +1,8 @@
-$('#new-post').on('submit', createPublication)
-$('.like-publication').on('click', likePublication);
+$('#new-post').on('submit', createPublication);
+
+$(document).on('click', '.like-publication', likePublication);
+$(document).on('click', '.unlike-publication', unlikePublication);
+
 
 function createPublication(evento) {
     evento.preventDefault();
@@ -33,6 +36,38 @@ function likePublication(evento) {
         const quantityLikes = parseInt(counterLikes.text());
 
         counterLikes.text(quantityLikes + 1);
+
+        elementClick.addClass('unlike-publication');
+        elementClick.addClass('text-danger');
+        elementClick.removeClass('like-publication');
+
+    }).fail(function () {
+        alert("Error liked!");
+    }).always(function() {
+        elementClick.prop('disabled', false);
+    });
+}
+
+function unlikePublication(evento) {
+    evento.preventDefault();
+
+    const elementClick = $(evento.target);
+    const publicationID = elementClick.closest('div').data('publication-id');
+
+    elementClick.prop('disabled', true);
+    $.ajax({
+        url: `/publications/${publicationID}/unlike`,
+        method: "POST"
+    }).done(function () {
+        const counterLikes = elementClick.next('span');
+        const quantityLikes = parseInt(counterLikes.text());
+
+        counterLikes.text(quantityLikes - 1);
+
+        elementClick.removeClass('unlike-publication');
+        elementClick.removeClass('text-danger');
+        elementClick.addClass('like-publication');
+
     }).fail(function () {
         alert("Error liked!");
     }).always(function() {

@@ -67,3 +67,28 @@ func LikePublication(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, response.StatusCode, nil)
 }
+
+//UnLikePublication chama a API para descurtir uma publicação
+func UnLikePublication(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	publicationID, erro := strconv.ParseUint(parameters["publicationID"], 10, 64)
+	if erro != nil {
+		responses.JSON(w, http.StatusBadRequest, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	url := fmt.Sprintf("%s/publications/%d/unlike", config.APIURL, publicationID)
+	response, erro := requests.MakeAuthRequest(r, http.MethodPost, url, nil)
+	if erro != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode >= 400 {
+		responses.TreatStatusCodeError(w, response)
+		return
+	}
+
+	responses.JSON(w, response.StatusCode, nil)
+}
