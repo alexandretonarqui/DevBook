@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>DevBook - Update Publication - {{ .Title }} </title>
+    <link rel='stylesheet' href='/assets/css/bootstrap.css'>
+</head>
+<body>
+    {{ template "header"}}
+
+    <div class="container-fluid">
+        <div class="row mt-4">
+            <div class="col-12">
+                <h3>Edit Publication</h3>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" class="form-control" id="title" name="title"
+                        placeholder="Insert the title of your publication" value=" {{ .Title }}">
+                </div>
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <textarea class="form-control" name="content" id="content" placeholder="Insert the content of your publication">{{ .Content }}</textarea>
+                </div>
+                <button id="update-publication" class="btn btn-info" data-pubblication-id="{{ .ID }}">
+                    Update Publication
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{ template "footer" }}
+    {{ template "scripts" }}
+
+</body>
+</html>

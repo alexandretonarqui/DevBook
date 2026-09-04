@@ -4,7 +4,7 @@
 {{ end }}
 
 {{ define "edit" }}
-    <a href="/edit" style="text-decoration: none;">
+    <a href="/publications/{{ .ID }}/edit" style="text-decoration: none;">
         <i class="fa-solid fa-pen-to-square" style="color: rgb(99, 230, 190);"></i>
     </a>
 {{ end }}
@@ -28,8 +28,8 @@
         {{ template "header-publication" . }}
         <p>
             {{ template "likes" . }}
-            {{ template "edit" }}
-            {{ template "delete" }}
+            {{ template "edit" . }}
+            {{ template "delete" . }}
         </p>
     </div>
 {{ end }}
