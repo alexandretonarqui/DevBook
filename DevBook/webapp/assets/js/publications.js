@@ -4,6 +4,7 @@ $(document).on('click', '.like-publication', likePublication);
 $(document).on('click', '.unlike-publication', unlikePublication);
 
 $('#update-publication').on('click', updatePublication);
+$('.delete-publication').on('click', deletePublication);
 
 function createPublication(evento) {
     evento.preventDefault();
@@ -83,7 +84,7 @@ function updatePublication(evento) {
 
     $.ajax({
         url: `/publications/${publicationID}`,
-        method: 'PUT',
+        method: "PUT",
         data: {
             title: $('#title').val(),
             content: $('#content').val()
@@ -94,5 +95,26 @@ function updatePublication(evento) {
         alert("Publication update error!");
     }).always(function() {
         $('#update-publication').prop('disabled', false);
+    });
+}
+
+function deletePublication(evento) {
+    evento.preventDefault();
+
+    const elementClick = $(evento.target);
+    const publication = elementClick.closest('div')
+    const publicationID = publication.data('publication-id');
+
+    elementClick.prop('disabled', true);
+
+    $.ajax({
+        url: `/publications/${publicationID}`,
+        method: "DELETE",
+    }).done(function(){
+        publication.fadeOut("slow", function() {
+            $(this).remove();
+        });
+    }).fail(function() {
+        alert("Error deleting publication!")
     });
 }
