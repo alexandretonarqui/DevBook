@@ -5,7 +5,7 @@ function createUser(evento) {
     console.log("Dentro da função usuário!")
 
     if ($('#password').val() != $('#confirm-password').val()) {
-        alert("Passwords are not equals");
+        Swal.fire("Ops...", "Passwords are not equals", "error");
         return;
     }
 
@@ -19,12 +19,26 @@ function createUser(evento) {
            password: $('#password').val()
         }
     }).done(function() {
-        alert("User succesfully registered!");
+        Swal.fire("Success", "User succesfully registered!", "success")
+            .then(function() {
+                $.ajax({
+                    url: "/login",
+                    method: "POST",
+                    data: {
+                        email: $('#email').val(),
+                        password: $('#password').val()
+                    }
+                }).done(function() {
+                    window.location = "/home";
+                }).fail(function() {
+                    Swal.fire("Ops...", "Error authenticate user!", "error");
+                })
+            })
     }).fail(function(erro) {
         console.log("Entrou no FAIL");
         console.log(erro);
         console.log("Status:", erro.status);
         console.log("Resposta:", erro.responseJSON);
-        alert("Error registering user!");
+        Swal.fire("Ops...", "Error registering user!", "error");
     });
 }

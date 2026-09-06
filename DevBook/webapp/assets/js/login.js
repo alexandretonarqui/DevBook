@@ -13,10 +13,6 @@ function login(evento) {
     }).done(function() {
         window.location = "/home";
     }).fail(function(erro) {
-        console.log("Entrou no FAIL");
-        console.log(erro);
-        console.log("Status:", erro.status);
-        console.log("Resposta:", erro.responseJSON);
-        alert("User or Password invalid!");
+        Swal.fire("Ops...", "User or Password invalid!", "error");
     });
 }
