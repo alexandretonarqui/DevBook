@@ -17,6 +17,13 @@ import (
 
 // LoadLoginPage carrega a tela de Login
 func LoadLoginPage(w http.ResponseWriter, r *http.Request) {
+	cookie, _ := cookies.Read(r)
+
+	if cookie["token"] != "" {
+		http.Redirect(w, r, "/home", 302)
+		return
+	}
+
 	utils.ExecTemplate(w, "login.html", nil)
 }
 
