@@ -122,3 +122,15 @@ func LoadUsersPage(w http.ResponseWriter, r *http.Request) {
 
 	utils.ExecTemplate(w, "users.html", users)
 }
+
+//LoadUsersProfile carrega a página do perfil do usuário
+func LoadUsersProfile(w http.ResponseWriter, r *http.Request){
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userID"], 10, 64)
+	if erro != nil {
+		responses.JSON(w, http.StatusBadRequest, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	user, erro := models.SearchFullUser(userID, r)
+}
