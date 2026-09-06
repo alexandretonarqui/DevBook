@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"webapp/src/config"
 	"webapp/src/cookies"
 	"webapp/src/models"
@@ -94,4 +95,30 @@ func LoadUpdatePublicationPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ExecTemplate(w, "update-publication.html", publication)
+}
+
+// LoadUsersPage carrega a página que atende o filtro de busca
+func LoadUsersPage(w http.ResponseWriter, r *http.Request) {
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+	url := fmt.Sprintf("%s/users?user=%s", config.APIURL, nameOrNick)
+
+	response, erro := requests.MakeAuthRequest(r, http.MethodGet, url, nil)
+	if erro != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode >= 400 {
+		responses.TreatStatusCodeError(w, response)
+		return
+	}
+
+	var users []models.User
+	if erro = json.NewDecoder(response.Body).Decode(&users); erro != nil {
+		responses.JSON(w, http.StatusUnprocessableEntity, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	utils.ExecTemplate(w, "users.html", users)
 }
