@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -22,7 +23,7 @@ type User struct {
 }
 
 // SearchFullUser faz 4 requisições na API para montar o usuário
-func SearchFullUser(userID, uint64, r http.Request) (User, error) {
+func SearchFullUser(userID uint64, r *http.Request) (User, error) {
 	userChannel := make(chan User)
 	followersChannel := make(chan []User)
 	followingChannel := make(chan []User)
@@ -32,6 +33,51 @@ func SearchFullUser(userID, uint64, r http.Request) (User, error) {
 	go GetFollowers(followersChannel, userID, r)
 	go GetFollowing(followingChannel, userID, r)
 	GetPublications(publicationsChannel, userID, r)
+
+	var (
+		user         User
+		followers    []User
+		following    []User
+		publications []Publication
+	)
+
+	for i := 0; i < 4; i++ {
+		select {
+		case userLoaded := <- userChannel:
+			if userLoaded.ID == 0 {
+				return User{}, errors.New("Error retrieving user")
+			}
+
+			user = userLoaded
+
+		case followersLoaded := <- followersChannel:
+			if followersLoaded == nil {
+				return User{}, errors.New("Error retrieving followers")
+			}
+
+			followers = followersLoaded
+
+		case followingLoaded := <- followingChannel:
+			if followingLoaded == nil {
+				return User{}, errors.New("Error retrieving users the user is following")
+			}
+
+			following = followingLoaded
+
+		case publicationsLoaded := <- publicationsChannel:
+			if publicationsLoaded == nil {
+				return User{}, errors.New("Error retrieving publications")
+			}
+
+			publications = publicationsLoaded
+		}
+	}
+
+	user.Followers = followers
+	user.Following = following
+	user.Publications = publications
+
+	return user, nil
 
 }
 
@@ -92,7 +138,7 @@ func GetFollowing(channel chan<- []User, userID uint64, r *http.Request) {
 	channel <- following
 }
 
-//GetPublications chama a API para buscar as publicações de um usuário
+// GetPublications chama a API para buscar as publicações de um usuário
 func GetPublications(channel chan<- []Publication, userID uint64, r *http.Request) {
 	url := fmt.Sprintf("%s/users/%d/publications", config.APIURL, userID)
 	response, erro := requests.MakeAuthRequest(r, http.MethodGet, url, nil)

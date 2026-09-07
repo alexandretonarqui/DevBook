@@ -133,4 +133,5 @@ func LoadUsersProfile(w http.ResponseWriter, r *http.Request){
 	}
 
 	user, erro := models.SearchFullUser(userID, r)
+	fmt.Println(user, erro)
 }
