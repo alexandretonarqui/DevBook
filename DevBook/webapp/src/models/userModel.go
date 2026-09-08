@@ -43,29 +43,32 @@ func SearchFullUser(userID uint64, r *http.Request) (User, error) {
 
 	for i := 0; i < 4; i++ {
 		select {
-		case userLoaded := <-userChannel:
+		case userLoaded := <- userChannel:
 			if userLoaded.ID == 0 {
 				return User{}, errors.New("Error retrieving user")
 			}
 
 			user = userLoaded
 
-		case followersLoaded := <-followersChannel:
+		case followersLoaded := <- followersChannel:
 			if followersLoaded == nil {
-				followersLoaded = []User{}
+				return User{}, errors.New("Error retrieving followers")
 			}
+
 			followers = followersLoaded
 
-		case followingLoaded := <-followingChannel:
+		case followingLoaded := <- followingChannel:
 			if followingLoaded == nil {
-				followingLoaded = []User{}
+				return User{}, errors.New("Error retrieving users the user is following")
 			}
+
 			following = followingLoaded
 
-		case publicationsLoaded := <-publicationsChannel:
+		case publicationsLoaded := <- publicationsChannel:
 			if publicationsLoaded == nil {
-				publicationsLoaded = []Publication{} 
+				return User{}, errors.New("Error retrieving publications")
 			}
+
 			publications = publicationsLoaded
 		}
 	}
@@ -113,6 +116,11 @@ func GetFollowers(channel chan<- []User, userID uint64, r *http.Request) {
 		return
 	}
 
+	if followers == nil {
+		channel <- make([]User, 0)
+		return
+	}
+
 	channel <- followers
 }
 
@@ -132,6 +140,11 @@ func GetFollowing(channel chan<- []User, userID uint64, r *http.Request) {
 		return
 	}
 
+	if following == nil {
+		channel <- make([]User, 0)
+		return
+	}
+
 	channel <- following
 }
 
@@ -148,6 +161,11 @@ func GetPublications(channel chan<- []Publication, userID uint64, r *http.Reques
 	var publications []Publication
 	if erro = json.NewDecoder(response.Body).Decode(&publications); erro != nil {
 		channel <- nil
+		return
+	}
+
+	if publications == nil {
+		channel <- make([]Publication, 0)
 		return
 	}
 

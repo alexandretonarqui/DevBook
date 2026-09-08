@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"webapp/src/config"
+	"webapp/src/requests"
 	"webapp/src/responses"
+
+	"github.com/gorilla/mux"
 )
 
 //CreateUser chama a API para cadastrar um novo usuário no banco de dados
@@ -27,6 +31,56 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	url := fmt.Sprintf("%s/users", config.APIURL)
 	response, erro := http.Post(url, "application/json", bytes.NewBuffer(user))
+	if erro != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode >= 400 {
+		responses.TreatStatusCodeError(w, response)
+		return
+	}
+
+	responses.JSON(w, response.StatusCode, nil)
+}
+
+//UnfollowUser chama a API para parar de seguir um usuário
+func UnfollowUser(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userID"], 10, 64)
+	if erro != nil {
+		responses.JSON(w, http.StatusBadRequest, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	url := fmt.Sprintf("%s/users/%d/unfollow", config.APIURL, userID)
+	response, erro := requests.MakeAuthRequest(r, http.MethodPost, url, nil)
+	if erro != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode >= 400 {
+		responses.TreatStatusCodeError(w, response)
+		return
+	}
+
+	responses.JSON(w, response.StatusCode, nil)
+}
+
+//FollowUser chama a API para começar seguir um usuário
+func FollowUser(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userID"], 10, 64)
+	if erro != nil {
+		responses.JSON(w, http.StatusBadRequest, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	url := fmt.Sprintf("%s/users/%d/follow", config.APIURL, userID)
+	response, erro := requests.MakeAuthRequest(r, http.MethodPost, url, nil)
 	if erro != nil {
 		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
 		return
