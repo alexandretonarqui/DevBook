@@ -123,8 +123,8 @@ func LoadUsersPage(w http.ResponseWriter, r *http.Request) {
 	utils.ExecTemplate(w, "users.html", users)
 }
 
-//LoadUsersProfile carrega a página do perfil do usuário
-func LoadUsersProfile(w http.ResponseWriter, r *http.Request){
+// LoadUsersProfile carrega a página do perfil do usuário
+func LoadUsersProfile(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	userID, erro := strconv.ParseUint(parameters["userID"], 10, 64)
 	if erro != nil {
@@ -133,5 +133,19 @@ func LoadUsersProfile(w http.ResponseWriter, r *http.Request){
 	}
 
 	user, erro := models.SearchFullUser(userID, r)
-	fmt.Println(user, erro)
+	if erro != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	cookie, _ := cookies.Read(r)
+	userLoggedID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	utils.ExecTemplate(w, "user.html", struct {
+		User        models.User
+		UserLoggedID uint64
+	}{
+		User: user,
+		UserLoggedID: userLoggedID,
+	})
 }

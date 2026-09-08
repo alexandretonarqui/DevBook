@@ -32,7 +32,7 @@ func SearchFullUser(userID uint64, r *http.Request) (User, error) {
 	go GetUserData(userChannel, userID, r)
 	go GetFollowers(followersChannel, userID, r)
 	go GetFollowing(followingChannel, userID, r)
-	GetPublications(publicationsChannel, userID, r)
+	go GetPublications(publicationsChannel, userID, r)
 
 	var (
 		user         User
@@ -43,32 +43,29 @@ func SearchFullUser(userID uint64, r *http.Request) (User, error) {
 
 	for i := 0; i < 4; i++ {
 		select {
-		case userLoaded := <- userChannel:
+		case userLoaded := <-userChannel:
 			if userLoaded.ID == 0 {
 				return User{}, errors.New("Error retrieving user")
 			}
 
 			user = userLoaded
 
-		case followersLoaded := <- followersChannel:
+		case followersLoaded := <-followersChannel:
 			if followersLoaded == nil {
-				return User{}, errors.New("Error retrieving followers")
+				followersLoaded = []User{}
 			}
-
 			followers = followersLoaded
 
-		case followingLoaded := <- followingChannel:
+		case followingLoaded := <-followingChannel:
 			if followingLoaded == nil {
-				return User{}, errors.New("Error retrieving users the user is following")
+				followingLoaded = []User{}
 			}
-
 			following = followingLoaded
 
-		case publicationsLoaded := <- publicationsChannel:
+		case publicationsLoaded := <-publicationsChannel:
 			if publicationsLoaded == nil {
-				return User{}, errors.New("Error retrieving publications")
+				publicationsLoaded = []Publication{} 
 			}
-
 			publications = publicationsLoaded
 		}
 	}
