@@ -168,3 +168,20 @@ func LoadUserProfileLogged(w http.ResponseWriter, r *http.Request) {
 
 	utils.ExecTemplate(w, "profile.html", user)
 }
+
+//LoadUserEditProfile carrega a página para edição do perfil do usuário
+func LoadUserEditProfile(w http.ResponseWriter, r *http.Request) {
+	cookie, _ := cookies.Read(r)
+	userID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	channel := make(chan models.User)
+	go models.GetUserData(channel, userID, r)
+	user := <-channel
+
+	if user.ID == 0 {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: "Error retrieving User"})
+		return
+	}
+
+	utils.ExecTemplate(w, "edit-user.html", user)
+}
