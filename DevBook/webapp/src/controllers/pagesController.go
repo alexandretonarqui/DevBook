@@ -131,15 +131,20 @@ func LoadUsersProfile(w http.ResponseWriter, r *http.Request) {
 		responses.JSON(w, http.StatusBadRequest, responses.ErroAPI{Erro: erro.Error()})
 		return
 	}
+	
+	cookie, _ := cookies.Read(r)
+	userLoggedID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	if userID == userLoggedID {
+		http.Redirect(w, r, "/profile", 302)
+		return
+	}
 
 	user, erro := models.SearchFullUser(userID, r)
 	if erro != nil {
 		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
 		return
 	}
-
-	cookie, _ := cookies.Read(r)
-	userLoggedID, _ := strconv.ParseUint(cookie["id"], 10, 64)
 
 	utils.ExecTemplate(w, "user.html", struct {
 		User        models.User
@@ -148,4 +153,18 @@ func LoadUsersProfile(w http.ResponseWriter, r *http.Request) {
 		User: user,
 		UserLoggedID: userLoggedID,
 	})
+}
+
+//LoadUserProfileLogged carrega a página do perfil do usuário logado
+func LoadUserProfileLogged(w http.ResponseWriter, r *http.Request) {
+	cookie, _ := cookies.Read(r)
+	userID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	user, erro := models.SearchFullUser(userID, r)
+	if erro != nil {
+		responses.JSON(w, http.StatusInternalServerError, responses.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	utils.ExecTemplate(w, "profile.html", user)
 }
