@@ -1,7 +1,7 @@
 $('#unfollow').on('click', unfollow);
 $('#follow').on('click', follow);
 $('#edit-user').on('submit', edit);
-$('#update-password').on('submit', updatePassword);
+$('#updatepassword').on('submit', updatePassword);
 
 function unfollow() {
     const userID = $(this).data('user-id');
@@ -44,12 +44,12 @@ function edit(evento) {
             email: $('#email').val(),
             nick: $('#nick').val(),
         }
-    }).done(function() {
+    }).done(function () {
         Swal.fire("Success!", "Profile Updated!", "success")
-            .then(function() {
+            .then(function () {
                 window.location = "/profile";
             });
-    }).fail(function() {
+    }).fail(function () {
         Swal.fire("Ops..", "Error Updating Profile!", "error");
     });
 }
@@ -63,18 +63,18 @@ function updatePassword(evento) {
     }
 
     $.ajax({
-        url: "/update-password",
+        url: "/updatepassword",
         method: "POST",
         data: {
-            actual: $('#actual-password').val(),
+            current: $('#current-password').val(),
             new: $('#new-password').val()
         }
-    }).done(function() {
+    }).done(function () {
         Swal.fire("Success", "Passwords Updated Successfully!", "success")
-            .then(function() {
+            .then(function () {
                 window.location = "/profile";
             })
-    }).fail(function() {
+    }).fail(function () {
         Swal.fire("Ops...", "Error Updating Password!", "error");
     });
 }

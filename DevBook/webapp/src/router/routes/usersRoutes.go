@@ -61,9 +61,15 @@ var usersRoutes = []Route {
 		RequestAuth: true,
 	},
 	{
-		URI: 		 "/update-password",
+		URI: 		 "/updatepassword",
 		Method: 	 http.MethodGet,
 		Function: 	 controllers.LoadUpdatePasswordPage,
+		RequestAuth: true,
+	},
+	{
+		URI: 		 "/updatepassword",
+		Method: 	 http.MethodPost,
+		Function: 	 controllers.UpdatePassword,
 		RequestAuth: true,
 	},
 }
