@@ -2,6 +2,7 @@ $('#unfollow').on('click', unfollow);
 $('#follow').on('click', follow);
 $('#edit-user').on('submit', edit);
 $('#updatepassword').on('submit', updatePassword);
+$('#delete-user').on('click', deleteUser);
 
 function unfollow() {
     const userID = $(this).data('user-id');
@@ -77,4 +78,28 @@ function updatePassword(evento) {
     }).fail(function () {
         Swal.fire("Ops...", "Error Updating Password!", "error");
     });
+}
+
+function deleteUser() {
+    Swal.fire({
+        title: "Atention!",
+        text: "Are You Sure?",
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+        icon: "warning"
+    }).then(function(confirmation) {
+        if (confirmation.value) {
+            $.ajax({
+                url: "/delete-user",
+                method: "DELETE"
+            }).done(function() {
+                Swal.fire("Success!", "Your Profile Deleted Successfully!", "success")
+                    .then(function() {
+                        window.location = "/logout";
+                    })
+            }).fail(function() {
+                Swal.fire("Ops..", "Error Deleting User's Profile!", "error");
+            });
+        }
+    })
 }
