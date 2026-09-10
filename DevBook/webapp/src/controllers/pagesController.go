@@ -185,3 +185,8 @@ func LoadUserEditProfile(w http.ResponseWriter, r *http.Request) {
 
 	utils.ExecTemplate(w, "edit-user.html", user)
 }
+
+//LoadUpdatePasswordPage carrega a página para atualização da senha do usuário
+func LoadUpdatePasswordPage(w http.ResponseWriter, r *http.Request) {
+	utils.ExecTemplate(w, "update-password.html", nil)
+}

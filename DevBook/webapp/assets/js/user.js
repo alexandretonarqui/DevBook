@@ -1,6 +1,7 @@
 $('#unfollow').on('click', unfollow);
 $('#follow').on('click', follow);
 $('#edit-user').on('submit', edit);
+$('#update-password').on('submit', updatePassword);
 
 function unfollow() {
     const userID = $(this).data('user-id');
@@ -50,5 +51,30 @@ function edit(evento) {
             });
     }).fail(function() {
         Swal.fire("Ops..", "Error Updating Profile!", "error");
+    });
+}
+
+function updatePassword(evento) {
+    evento.preventDefault();
+
+    if ($('#new-password').val() != $('#confirm-password').val()) {
+        Swal.fire("Ops...", "Passwords don't match!", "warning");
+        return;
+    }
+
+    $.ajax({
+        url: "/update-password",
+        method: "POST",
+        data: {
+            actual: $('#actual-password').val(),
+            new: $('#new-password').val()
+        }
+    }).done(function() {
+        Swal.fire("Success", "Passwords Updated Successfully!", "success")
+            .then(function() {
+                window.location = "/profile";
+            })
+    }).fail(function() {
+        Swal.fire("Ops...", "Error Updating Password!", "error");
     });
 }
